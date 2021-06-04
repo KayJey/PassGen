@@ -1,2 +1,2 @@
 # PassGen
-An application to authenticate users and create a strong password.
+Python code to authenticate users and create a strong password.
