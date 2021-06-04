@@ -1,8 +1,18 @@
 import secrets
 import random
 import string
+import mysql.connector
 
 store = {}
+
+mydb = mysql.connector.connect(
+    host="localhost",
+    username="root",
+    password="0303",
+    database="test"
+)
+
+mycursor = mydb.cursor()
 
 
 def password_gen(u_name):
@@ -14,31 +24,82 @@ def password_gen(u_name):
     password += secrets.choice(string.octdigits)
     password += secrets.choice(string.octdigits)
     password += secrets.choice(string.punctuation)
+
     password = list(password)
     random.shuffle(password)
+
     store[u_name] = "".join(password)
+
+    return store[u_name]
 
 
 def username():
     user_id = input("Enter User ID : ")
-    if (user_id not in store.keys()) and (" " not in user_id):
-        password_gen(user_id)
+    user_id = user_id.replace(" ", "_")
+
+    mycursor.execute("select username from storedata;")
+    result = mycursor.fetchall()
+
+    myresult = [x[0] for x in result]
+
+    if (user_id not in myresult) and (user_id not in store):
+        print("Hello {}!, your password is \"{}\"".format(user_id, password_gen(user_id)))
+        print()
+
     else:
         print("Already ExistS!!! Try Again")
         username()
 
 
-def get_data():
-    print()
-    for key , value in store.items():
-        print("{} : {}".format(key, value))
+def authenticate_user():
+    try:
+        sql = "SELECT password FROM storedata WHERE username = %s;"
+        adr = tuple([input("Enter username : ")])
+        mycursor.execute(sql, adr)
+        result = mycursor.fetchone()
+        while len(result):
+            password = input("Enter password : ")
+            if password == result[0]:
+                print("Validation Successful!!")
+                print()
+                break
+            else:
+                print("Try again!!")
+
+    except:
+        print("Invalid Username")
+        authenticate_user()
 
 
-if _name_ == "_main_":
-    for i in range(int(input("Enter No. of Users :"))):
-        username()
-    while 1:
-        ch = input("Enter your username")
-        if ch in store.keys():
-            print("{} : {}".format(ch, store[ch]))
-            break
+if __name__ == "__main__":
+
+    try:
+        # Create Table
+        mycursor.execute("CREATE TABLE STOREDATA (USERNAME VARCHAR (50), PASSWORD VARCHAR(10));")
+    except:
+        # If table already exists, proceed!
+        pass
+    sql = "INSERT INTO STOREDATA (USERNAME, PASSWORD) VALUES (%s, %s);"
+    choice = '_'
+    while choice != '0':
+        if choice in '12':
+            if choice == '1':
+                n = int(input("Enter Number of Users:"))
+                for i in range(n):
+                    # Password Generator function call
+                    username()
+                for i in store.items():
+                    index = tuple(map(str, i))
+                    mycursor.execute(sql, index)
+            if choice == '2':
+                # Authenticate user function call
+                authenticate_user()
+
+        else:
+            print("Welcome, Kindly your choice")
+            print("1. Password Generation")
+            print("2. Password Validation")
+            print("0. To save and Exit")
+        choice = input("Enter Choice : ")
+    # Commit Database
+    mydb.commit()
