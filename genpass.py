@@ -8,7 +8,7 @@ store = {}
 mydb = mysql.connector.connect(
     host="localhost",
     username="root",
-    password="0303",
+    password="",
     database="test"
 )
 
@@ -49,7 +49,7 @@ def username():
     else:
         print("Already ExistS!!! Try Again")
         username()
-
+    mydb.commit()
 
 def authenticate_user():
     try:
@@ -62,7 +62,7 @@ def authenticate_user():
             if password == result[0]:
                 print("Validation Successful!!")
                 print()
-                break
+                return adr
             else:
                 print("Try again!!")
 
@@ -70,6 +70,13 @@ def authenticate_user():
         print("Invalid Username")
         authenticate_user()
 
+def update():
+    sql = "UPDATE STOREDATA SET PASSWORD = %s WHERE USERNAME = %s;"
+    a = authenticate_user()
+    b = input("Enter Password to Update :")
+    i = (b,a[0])
+    mycursor.execute(sql,i)
+    mydb.commit()
 
 if __name__ == "__main__":
 
@@ -82,7 +89,7 @@ if __name__ == "__main__":
     sql = "INSERT INTO STOREDATA (USERNAME, PASSWORD) VALUES (%s, %s);"
     choice = '_'
     while choice != '0':
-        if choice in '12':
+        if choice in '123':
             if choice == '1':
                 n = int(input("Enter Number of Users:"))
                 for i in range(n):
@@ -94,12 +101,15 @@ if __name__ == "__main__":
             if choice == '2':
                 # Authenticate user function call
                 authenticate_user()
+            if choice == '3':
+                update()
 
         else:
             print("Welcome, Kindly your choice")
             print("1. Password Generation")
             print("2. Password Validation")
-            print("0. To save and Exit")
+            print("3. Update Password")
+            print("0. Exit")
         choice = input("Enter Choice : ")
     # Commit Database
     mydb.commit()
