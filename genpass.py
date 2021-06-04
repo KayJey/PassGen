@@ -8,7 +8,7 @@ store = {}
 mydb = mysql.connector.connect(
     host="localhost",
     username="root",
-    password="",
+    password="0303",
     database="test"
 )
 
@@ -47,7 +47,7 @@ def username():
         print()
 
     else:
-        print("Already ExistS!!! Try Again")
+        print("Already Exists!!! Try Again")
         username()
     mydb.commit()
 
@@ -76,7 +76,11 @@ def update():
     b = input("Enter Password to Update :")
     i = (b,a[0])
     mycursor.execute(sql,i)
+    
     mydb.commit()
+    
+    print("Password Updated Successfully!")
+    print()
 
 if __name__ == "__main__":
 
@@ -111,5 +115,6 @@ if __name__ == "__main__":
             print("3. Update Password")
             print("0. Exit")
         choice = input("Enter Choice : ")
+
     # Commit Database
     mydb.commit()
