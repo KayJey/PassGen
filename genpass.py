@@ -8,7 +8,7 @@ store = {}
 mydb = mysql.connector.connect(
     host="localhost",
     username="root",
-    password="0303",
+    password="2103",
     database="test"
 )
 
@@ -51,6 +51,7 @@ def username():
         username()
     mydb.commit()
 
+
 def authenticate_user():
     try:
         sql = "SELECT password FROM storedata WHERE username = %s;"
@@ -68,19 +69,22 @@ def authenticate_user():
 
     except:
         print("Invalid Username")
+        # if username is not valid it runs repeatedly to authenticate user
         authenticate_user()
+
 
 def update():
     sql = "UPDATE STOREDATA SET PASSWORD = %s WHERE USERNAME = %s;"
-    a = authenticate_user()
-    b = input("Enter Password to Update :")
-    i = (b,a[0])
-    mycursor.execute(sql,i)
-    
+    auth = authenticate_user()
+    upd_pass = input("Enter Password to Update :")
+    res1 = (upd_pass, auth[0])
+    mycursor.execute(sql, res1)
+
     mydb.commit()
-    
+
     print("Password Updated Successfully!")
     print()
+
 
 if __name__ == "__main__":
 
@@ -106,6 +110,7 @@ if __name__ == "__main__":
                 # Authenticate user function call
                 authenticate_user()
             if choice == '3':
+                # calling update function to update password
                 update()
 
         else:
